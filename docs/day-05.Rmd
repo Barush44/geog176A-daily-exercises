@@ -1,6 +1,6 @@
 ---
 title: "Daily Exercise 05"
-author: "Mike Johnson"
+author: "Barush Martinez"
 output: html_document
 ---
 
@@ -52,6 +52,23 @@ Use `dplyr` verbs to  create a data.frame of the **5** counties with the most cu
 (**Hint:** `filter`, `arrange`)
 
 ```{r}
+library(tidyverse)
+url = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv'
+
+covid = read_csv(url)
+
+head(covid, 5)
+
+covid %>% 
+  filter(date == max(date)) %>% 
+  arrange(-cases) %>% 
+  select(county, state, cases) %>% 
+  head(5)
+
+ 
+  
+
+
 
 ```
 
@@ -62,7 +79,21 @@ Use `dplyr` verbs to create a data.frame of the **5** states with the _most_ cas
 (**Hint:** `filter`, `group_by`, `summarize`, `arrange`)
 
 ```{r}
+covid %>% 
+  filter(date == max(date)) %>% 
+  group_by(state) %>% 
+  summarise(cases = sum(cases, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  slice_max(cases, n = 5) %>% 
+  pull(state)
 
+
+#summarize what is na.rm ?  
+#why did we ungroup, you always need to after you group 
+
+  
+  
+  
 ```
 
 ## Question 3: 
@@ -72,6 +103,21 @@ Use the `dplyr` verbs to report the **5** counties with the _worst_ current deat
 (**Hint:** `filter`, `mutate`, `arrange`)
 
 ```{r}
+covid %>% 
+  filter(date == max(date), cases > 0, county != "Unknown") %>% 
+  mutate(ratio = 100*(deaths/cases)) %>% 
+  slice_max(ratio, n = 5) %>% 
+  pull(county)
+# attempt 3 
+covid %>% 
+  filter(date == max(date), cases > 1000, county != "Unknown") %>% 
+  mutate(ratio = 100*(deaths/cases)) %>% 
+  slice_max(ratio, n = 5) %>% 
+  pull(county, state)
+
+
+# why the unknown ? 
+
 
 ```
 
@@ -83,7 +129,16 @@ Use the `dplyr` verbs to report the **5** states with the _worst_ current death/
 (**Hint:** `filter`, `group_by`, `summarize`, `mutate`, `arrange`)
 
 ```{r}
+covid %>% 
+  filter(date == max(date)) %>% 
+  group_by(state) %>% 
+  summarise(totCases = sum(cases), totDeaths = sum(deaths)) %>% 
+  ungroup() %>% 
+  mutate(ratio = 100 * (totDeaths/totCases)) %>% 
+  slice_max(ratio, n = 5) %>% 
+  pull(ratio,state)
 
+## what does the ungroup do ?
 ```
 
 
